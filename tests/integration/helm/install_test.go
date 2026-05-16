@@ -224,6 +224,12 @@ func TestNumericNamespaceInstall(t *testing.T) {
 		"global": map[string]interface{}{
 			"istioNamespace": numericNS,
 		},
+		// Gateway injection sets CA_ADDR from global.istioNamespace, but xDS uses
+		// proxyConfig.DiscoveryAddress which defaults to istiod.istio-system.svc when
+		// PROXY_CONFIG is empty. Set discoveryAddress explicitly for non-istio-system installs.
+		"podAnnotations": map[string]interface{}{
+			"proxy.istio.io/config": fmt.Sprintf(`{"discoveryAddress":"istiod.%s.svc:15012"}`, numericNS),
+		},
 	}
 	framework.
 		NewTest(t).
